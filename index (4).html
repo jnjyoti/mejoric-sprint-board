@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mejoric Sprint Board</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bk:#0A0A0A;--bk2:#111;--bk3:#1C1C1C;--g7:#2A2A2A;--g6:#3D3D3D;
+  --g5:#666;--g4:#888;--g3:#AAA;--g2:#CCC;--g15:#E0E0E0;--g1:#F0F0F0;--g05:#F7F7F7;
+  --wh:#FFF;--ai:#5B3CF5;--ai2:#7C5CFF;--ai-l:#EEE9FF;
+  --done:#16A34A;--done-l:#F0FBF4;
+  --prog:#D97706;--prog-l:#FFF8EC;
+  --blk:#DC2626;--blk-l:#FFF0F0;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--g05);color:var(--bk);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── NAV ──────────────────────────────── */
+.nav{background:var(--bk);height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;flex-shrink:0;border-bottom:1px solid var(--g7)}
+.nav-brand{display:flex;align-items:center;gap:9px}
+.nav-mark{width:28px;height:28px;background:var(--wh);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--bk)}
+.nav-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--wh)}
+.nav-name span{color:var(--g5);font-weight:400;font-size:12px;margin-left:5px}
+.nav-tabs{display:flex;gap:2px}
+.nt{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;color:var(--g4);border:none;background:none;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.nt:hover{background:rgba(255,255,255,.07);color:var(--wh)}
+.nt.on{background:var(--wh);color:var(--bk);font-weight:600}
+.nav-r{display:flex;gap:8px;align-items:center}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#22C55E;animation:pulse 2s infinite}
+.live-lbl{font-size:11px;color:#22C55E;font-weight:600}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.add-btn{background:var(--wh);color:var(--bk);border:none;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s}
+.add-btn:hover{opacity:.85}
+
+/* ── LAYOUT ───────────────────────────── */
+.layout{display:flex;flex:1;overflow:hidden}
+.sidebar{width:212px;flex-shrink:0;background:var(--bk2);border-right:1px solid var(--g7);overflow-y:auto;padding-bottom:16px}
+.main{flex:1;overflow-y:auto}
+.view{display:none}.view.on{display:block}
+
+/* ── SIDEBAR ──────────────────────────── */
+.sb-sprint{margin:10px 11px 6px;padding:9px 10px;background:rgba(255,255,255,.04);border:1px solid var(--g7);border-radius:8px}
+.sb-sl{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--g5);margin-bottom:2px}
+.sb-sn{font-size:11px;font-weight:600;color:var(--wh);margin-bottom:5px}
+.sb-pb{background:var(--g7);border-radius:3px;height:3px;margin-bottom:3px}
+.sb-pf{background:var(--wh);border-radius:3px;height:3px;transition:width .4s}
+.sb-ps{display:flex;justify-content:space-between;font-size:9px;color:var(--g5)}
+.sb-ps span{color:var(--g3)}
+.sb-sec{padding:10px 0 2px}
+.sb-lbl{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--g5);padding:0 11px 4px;display:block}
+.si{display:flex;align-items:center;gap:7px;padding:6px 11px;cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif;border-left:2px solid transparent}
+.si:hover{background:rgba(255,255,255,.04)}
+.si.on{background:rgba(255,255,255,.07);border-left-color:var(--wh)}
+.si.on .si-l{color:var(--wh);font-weight:600}
+.si-i{font-size:12px;width:14px;text-align:center}
+.si-l{font-size:11px;color:var(--g4)}
+.si-c{margin-left:auto;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;background:rgba(255,255,255,.06);color:var(--g5)}
+.si.on .si-c{background:var(--wh);color:var(--bk)}
+.sb-team{padding:8px 11px 0}
+.sbt{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--g5);margin-bottom:6px;display:block}
+.mc{display:flex;align-items:center;gap:6px;padding:4px 5px;border-radius:6px;cursor:pointer;transition:background .15s;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif;margin-bottom:1px}
+.mc:hover{background:rgba(255,255,255,.04)}
+.mc.on{background:rgba(255,255,255,.07)}
+.mc-av{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;flex-shrink:0}
+.mc-n{font-size:11px;color:var(--g3);flex:1}
+.mc-c{font-size:9px;color:var(--g5)}
+
+/* ── PAGE HEADER ──────────────────────── */
+.phdr{padding:14px 20px 11px;background:var(--wh);border-bottom:1px solid var(--g15);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:50;backdrop-filter:blur(4px)}
+.ph-t{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--bk)}
+.ph-s{font-size:11px;color:var(--g4);margin-top:1px}
+.ph-r{display:flex;gap:6px}
+.pbtn{font-size:12px;font-weight:500;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;border:none}
+.pbtn.out{background:var(--wh);color:var(--bk);border:1.5px solid var(--g2)}.pbtn.out:hover{border-color:var(--bk)}
+.pbtn.sol{background:var(--bk);color:var(--wh)}.pbtn.sol:hover{opacity:.85}
+
+/* ── STATS ────────────────────────────── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 20px}
+.sc{background:var(--wh);border:1px solid var(--g15);border-radius:9px;padding:10px 13px}
+.sc-v{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:1px}
+.sc-l{font-size:11px;color:var(--g4)}
+.sc-bar{height:3px;border-radius:2px;margin-top:7px;background:var(--g15)}
+.sc-bf{height:3px;border-radius:2px;background:var(--bk);transition:width .4s}
+
+/* ── KANBAN ───────────────────────────── */
+.bwrap{padding:0 20px 20px}
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.col{background:var(--g05);border:1px solid var(--g15);border-radius:9px;overflow:hidden}
+.col-hdr{padding:9px 11px;display:flex;align-items:center;gap:5px;border-bottom:1px solid var(--g15)}
+.cdot{width:7px;height:7px;border-radius:50%}
+.cname{font-size:12px;font-weight:600;color:var(--bk);flex:1}
+.cnum{font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px}
+.col.todo .col-hdr{background:#F7F7F7}.col.todo .cdot{background:#888}.col.todo .cnum{background:#E8E8E8;color:#666}
+.col.prog .col-hdr{background:var(--prog-l)}.col.prog .cdot{background:var(--prog)}.col.prog .cnum{background:#FEF3C7;color:var(--prog)}
+.col.done .col-hdr{background:var(--done-l)}.col.done .cdot{background:var(--done)}.col.done .cnum{background:#DCFCE7;color:var(--done)}
+.col.block .col-hdr{background:var(--blk-l)}.col.block .cdot{background:var(--blk)}.col.block .cnum{background:#FEE2E2;color:var(--blk)}
+.cbody{padding:7px;display:flex;flex-direction:column;gap:5px;min-height:120px}
+.drop-hint{padding:10px;text-align:center;font-size:11px;color:var(--g3)}
+
+/* ── TASK CARD ────────────────────────── */
+.tc{background:var(--wh);border:1.5px solid var(--g15);border-radius:7px;padding:9px 10px;cursor:pointer;transition:all .15s;user-select:none}
+.tc:hover{border-color:var(--bk);box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.tc.dragging{opacity:.35;transform:rotate(2deg)}
+.tc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;gap:5px}
+.tc-id{font-family:'DM Mono',monospace;font-size:9px;color:var(--g4)}
+.tc-flags{display:flex;gap:3px;align-items:center}
+.tc-pri{font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px}
+.ph{background:#FEE2E2;color:#DC2626}.pm{background:#FEF3C7;color:#D97706}.pl{background:#F0FBF4;color:#16A34A}
+.tc-ai{font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px;background:var(--ai-l);color:var(--ai)}
+.tc-title{font-size:12px;font-weight:600;color:var(--bk);line-height:1.3;margin-bottom:4px}
+.tc-desc{font-size:11px;color:var(--g4);line-height:1.35;margin-bottom:6px}
+.tc-foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px}
+.tc-tags{display:flex;gap:3px;flex-wrap:wrap}
+.tc-tag{font-size:9px;font-weight:500;padding:1px 5px;border-radius:3px;background:var(--g1);color:var(--g5)}
+.tc-meta{display:flex;align-items:center;gap:6px}
+.tc-due{font-size:9px;color:var(--g4)}.tc-due.od{color:#DC2626}
+.tc-av{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700}
+
+/* ── STANDUP ──────────────────────────── */
+.su-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding:0 20px 20px}
+.su-card{background:var(--wh);border:1px solid var(--g15);border-radius:9px;overflow:hidden}
+.su-hdr{padding:9px 12px;display:flex;align-items:center;gap:7px;background:var(--g05);border-bottom:1px solid var(--g15)}
+.su-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.su-nm{font-size:12px;font-weight:600;color:var(--bk)}
+.su-rl{font-size:10px;color:var(--g4)}
+.su-st{margin-left:auto;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px}
+.stg{background:#DCFCE7;color:#16A34A}.sta{background:#FEF3C7;color:#D97706}.str{background:#FEE2E2;color:#DC2626}.stn{background:var(--g1);color:var(--g5)}
+.su-body{padding:10px 12px}
+.sub-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--g4);margin-bottom:4px}
+.sub-row{display:flex;align-items:flex-start;gap:6px;padding:3px 0;font-size:11px;color:var(--g6)}
+.sub-chk{width:13px;height:13px;border-radius:3px;border:1.5px solid var(--g2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:7px;transition:all .15s;margin-top:1px}
+.sub-chk.d{background:var(--bk);border-color:var(--bk);color:var(--wh)}
+.su-bl{margin-top:7px;padding:6px 8px;border-radius:6px;background:#FFF0F0;border:1px solid #FCA5A5}
+.su-bl-t{font-size:9px;font-weight:700;color:#DC2626;margin-bottom:2px}
+.su-bl-b{font-size:11px;color:#DC2626}
+
+/* ── MANAGEMENT ───────────────────────── */
+.mg-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 20px}
+.mg-card{background:var(--wh);border:1px solid var(--g15);border-radius:9px;overflow:hidden}
+.mg-hdr{padding:11px 13px;border-bottom:1px solid var(--g15);display:flex;align-items:center;justify-content:space-between}
+.mg-t{font-family:'Syne',sans-serif;font-size:12px;font-weight:700}
+.mg-body{padding:11px 13px}
+.mr{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--g15)}
+.mr:last-child{border:none;padding-bottom:0}
+.mr-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+.mr-info{flex:1}.mr-nm{font-size:11px;font-weight:600;color:var(--bk)}.mr-rl{font-size:10px;color:var(--g4)}
+.mr-bw{flex:1;max-width:86px}
+.mr-bwrap{background:var(--g1);border-radius:3px;height:4px;margin-bottom:1px}
+.mr-bfill{border-radius:3px;height:4px;background:var(--bk)}
+.mr-bp{font-size:9px;color:var(--g4);text-align:right}
+.mr-cnt{font-size:11px;font-weight:700;min-width:22px;text-align:right}
+.vel-bars{display:flex;align-items:flex-end;gap:5px;height:52px}
+.vel-b{flex:1;border-radius:3px 3px 0 0;background:var(--bk);min-height:3px}
+.vel-ls{display:flex;margin-top:4px}
+.vel-l{flex:1;font-size:9px;color:var(--g4);text-align:center}
+.dl-item{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--g15)}
+.dl-item:last-child{border:none;padding-bottom:0}
+.dl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dl-inf{flex:1}.dl-t{font-size:11px;font-weight:500}.dl-a{font-size:10px;color:var(--g4)}
+.dl-d{font-size:10px;font-weight:600;color:var(--g4)}.dl-d.urg{color:#DC2626}
+
+/* ── NOTES ────────────────────────────── */
+.nwrap{padding:0 20px 20px}
+.note-card{background:var(--wh);border:1px solid var(--g15);border-radius:9px;padding:13px;margin-bottom:9px}
+.note-card.ai-note{border-color:rgba(91,60,245,.25)}
+.nc-hdr{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.nc-date{font-family:'DM Mono',monospace;font-size:10px;color:var(--g4)}
+.nc-type{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:var(--g1);color:var(--g5)}
+.nc-ai-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--ai-l);color:var(--ai);display:flex;align-items:center;gap:3px}
+.nc-body{font-size:12.5px;color:var(--g6);line-height:1.7;white-space:pre-wrap}
+.nc-tasks{margin-top:8px;padding-top:8px;border-top:1px solid var(--g15)}
+.nc-tasks-hdr{font-size:10px;font-weight:700;color:var(--ai);margin-bottom:5px}
+.nc-task-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--g6);padding:2px 0}
+.nc-td{width:4px;height:4px;border-radius:50%;background:var(--ai);flex-shrink:0}
+
+/* ── MODAL ────────────────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--wh);border-radius:14px;width:520px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:translateY(14px);transition:transform .2s}
+.overlay.open .modal{transform:translateY(0)}
+.modal.wide{width:680px}
+.mhdr{padding:15px 18px 12px;border-bottom:1px solid var(--g15);display:flex;align-items:center;justify-content:space-between}
+.mtitle{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.mclose{width:26px;height:26px;border-radius:50%;background:var(--g1);border:none;cursor:pointer;font-size:13px;color:var(--g5);transition:all .15s}
+.mclose:hover{background:var(--bk);color:var(--wh)}
+.mbody{padding:15px 18px}
+.mfoot{padding:11px 18px;border-top:1px solid var(--g15);display:flex;justify-content:flex-end;gap:7px}
+.fl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--g5);margin-bottom:4px;display:block}
+.fi{width:100%;padding:8px 10px;border-radius:6px;border:1.5px solid var(--g2);font-size:13px;color:var(--bk);font-family:'DM Sans',sans-serif;outline:none;background:var(--wh);transition:border-color .15s;margin-bottom:10px}
+.fi:focus{border-color:var(--bk)}
+.fta{width:100%;padding:8px 10px;border-radius:6px;border:1.5px solid var(--g2);font-size:13px;color:var(--bk);font-family:'DM Sans',sans-serif;outline:none;background:var(--wh);transition:border-color .15s;resize:vertical;min-height:80px;margin-bottom:10px}
+.fta:focus{border-color:var(--bk)}
+.fsel{width:100%;padding:8px 10px;border-radius:6px;border:1.5px solid var(--g2);font-size:13px;color:var(--bk);font-family:'DM Sans',sans-serif;outline:none;background:var(--wh);margin-bottom:10px}
+.frow2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.frow2 .fi,.frow2 .fsel{margin-bottom:0}
+.fbtn{padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;border:none}
+.fbtn.can{background:var(--g1);color:var(--g5)}.fbtn.can:hover{background:var(--g15)}
+.fbtn.sub{background:var(--bk);color:var(--wh)}.fbtn.sub:hover{opacity:.85}
+.fbtn.ai-b{background:var(--ai);color:var(--wh);display:flex;align-items:center;gap:5px}.fbtn.ai-b:hover{background:var(--ai2)}
+
+/* ── AI ZONE ──────────────────────────── */
+.ai-zone{border:2px dashed var(--ai);border-radius:10px;background:var(--ai-l);padding:15px;margin-bottom:13px}
+.ai-zh{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.ai-zt{font-size:13px;font-weight:600;color:var(--ai)}
+.ai-zs{font-size:11px;color:#7C5CFF;margin-top:1px}
+.ai-ta{width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid rgba(91,60,245,.2);background:var(--wh);font-size:13px;color:var(--bk);font-family:'DM Sans',sans-serif;resize:vertical;min-height:100px;outline:none;transition:border-color .15s}
+.ai-ta:focus{border-color:var(--ai)}
+.ai-go{display:flex;align-items:center;justify-content:space-between;margin-top:8px;flex-wrap:wrap;gap:7px}
+.ai-tip{font-size:11px;color:#7C5CFF;font-style:italic}
+.ai-loading{display:flex;align-items:center;gap:8px;padding:12px 0;color:var(--ai);font-size:13px}
+.ai-spin{width:18px;height:18px;border:2px solid var(--ai-l);border-top-color:var(--ai);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-results{margin-top:13px}
+.air-hdr{display:flex;align-items:center;gap:6px;margin-bottom:9px}
+.air-t{font-size:13px;font-weight:600;color:var(--ai)}
+.air-c{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--ai-l);color:var(--ai)}
+.atp{border:1.5px solid rgba(91,60,245,.2);border-radius:8px;padding:9px 11px;margin-bottom:6px;background:var(--wh);display:flex;align-items:flex-start;gap:8px}
+.atp-ck{width:17px;height:17px;border-radius:4px;border:1.5px solid var(--g2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .15s;margin-top:1px}
+.atp-ck.on{background:var(--ai);border-color:var(--ai);color:var(--wh)}
+.atp-title{font-size:12px;font-weight:600;color:var(--bk);margin-bottom:3px}
+.atp-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.atp-av{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700}
+.atp-nm{font-size:10px;color:var(--g5)}
+.atp-p{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px}
+.atp-tag{font-size:9px;padding:1px 5px;border-radius:3px;background:var(--ai-l);color:var(--ai);font-weight:500}
+
+/* ── TOAST ────────────────────────────── */
+.toast{position:fixed;bottom:18px;right:18px;z-index:999;background:var(--bk);color:var(--wh);padding:9px 15px;border-radius:7px;font-size:12px;font-weight:500;transform:translateY(50px);opacity:0;transition:all .25s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ai-t{background:var(--ai)}
+
+/* ── SYNC INDICATOR ───────────────────── */
+.sync-flash{position:fixed;top:56px;right:18px;z-index:400;background:var(--ai);color:var(--wh);font-size:11px;padding:5px 12px;border-radius:6px;opacity:0;transition:opacity .3s;pointer-events:none}
+.sync-flash.show{opacity:1}
+
+@media(max-width:900px){.kanban{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.mg-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.sidebar{display:none}.kanban{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-mark">M</div>
+    <span class="nav-name">Mejoric <span>Sprint Board</span></span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nt on"  onclick="sv('board',this)">Board</button>
+    <button class="nt"     onclick="sv('standup',this)">Standup</button>
+    <button class="nt"     onclick="sv('mgmt',this)">Management</button>
+    <button class="nt"     onclick="sv('notes',this)">AI Notes</button>
+  </div>
+  <div class="nav-r">
+    <div class="live-dot"></div>
+    <span class="live-lbl">Live</span>
+    <button class="add-btn" onclick="om('task')">+ Add Task</button>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-sprint">
+      <div class="sb-sl">Active Sprint</div>
+      <div class="sb-sn" id="sb-sn">Sprint 1 — May Launch</div>
+      <div class="sb-pb"><div class="sb-pf" id="sb-pf" style="width:0%"></div></div>
+      <div class="sb-ps"><span id="sb-done">0</span> done · <span id="sb-total">0</span> total</div>
+    </div>
+    <div class="sb-sec">
+      <span class="sb-lbl">Views</span>
+      <button class="si on" onclick="sv('board',null)"><span class="si-i">⬜</span><span class="si-l">Board</span><span class="si-c" id="sb-cnt">0</span></button>
+      <button class="si" onclick="sv('standup',null)"><span class="si-i">🎯</span><span class="si-l">Daily Standup</span></button>
+      <button class="si" onclick="sv('mgmt',null)"><span class="si-i">📊</span><span class="si-l">Management</span></button>
+      <button class="si" onclick="sv('notes',null)"><span class="si-i">✨</span><span class="si-l">AI Call Notes</span></button>
+    </div>
+    <div class="sb-sec">
+      <span class="sb-lbl">Filter</span>
+      <button class="si on" onclick="filt('all',this)"><span class="si-i">👥</span><span class="si-l">Everyone</span></button>
+    </div>
+    <div class="sb-team" id="sb-team"></div>
+  </aside>
+
+  <main class="main">
+    <!-- BOARD -->
+    <div class="view on" id="view-board">
+      <div class="phdr">
+        <div><div class="ph-t">Sprint Board</div><div class="ph-s" id="board-sub">Sprint 1 — May Launch</div></div>
+        <div class="ph-r">
+          <button class="pbtn out" onclick="om('sprint')">+ New Sprint</button>
+          <button class="pbtn sol" onclick="om('task')">+ Add Task</button>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="sc"><div class="sc-v" id="st-tot">0</div><div class="sc-l">Total Tasks</div><div class="sc-bar"><div class="sc-bf" style="width:100%"></div></div></div>
+        <div class="sc"><div class="sc-v" id="st-pr">0</div><div class="sc-l">In Progress</div><div class="sc-bar"><div class="sc-bf" id="bf-pr" style="width:0%"></div></div></div>
+        <div class="sc"><div class="sc-v" id="st-dn">0</div><div class="sc-l">Completed</div><div class="sc-bar"><div class="sc-bf" id="bf-dn" style="width:0%"></div></div></div>
+        <div class="sc"><div class="sc-v" id="st-bl">0</div><div class="sc-l">Blocked</div><div class="sc-bar"><div class="sc-bf" id="bf-bl" style="width:0%;background:#DC2626"></div></div></div>
+      </div>
+      <div class="bwrap">
+        <div class="kanban">
+          <div class="col todo"><div class="col-hdr"><div class="cdot"></div><span class="cname">To Do</span><span class="cnum" id="n-todo">0</span></div><div class="cbody" id="b-todo" ondragover="dov(event)" ondrop="dop(event,'todo')"></div></div>
+          <div class="col prog"><div class="col-hdr"><div class="cdot"></div><span class="cname">In Progress</span><span class="cnum" id="n-prog">0</span></div><div class="cbody" id="b-prog" ondragover="dov(event)" ondrop="dop(event,'inprogress')"></div></div>
+          <div class="col done"><div class="col-hdr"><div class="cdot"></div><span class="cname">Done</span><span class="cnum" id="n-done">0</span></div><div class="cbody" id="b-done" ondragover="dov(event)" ondrop="dop(event,'done')"></div></div>
+          <div class="col block"><div class="col-hdr"><div class="cdot"></div><span class="cname">Blocked</span><span class="cnum" id="n-block">0</span></div><div class="cbody" id="b-block" ondragover="dov(event)" ondrop="dop(event,'blocked')"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STANDUP -->
+    <div class="view" id="view-standup">
+      <div class="phdr"><div><div class="ph-t">Daily Standup</div><div class="ph-s" id="today-lbl"></div></div></div>
+      <div class="su-grid" id="su-grid"></div>
+    </div>
+
+    <!-- MANAGEMENT -->
+    <div class="view" id="view-mgmt">
+      <div class="phdr"><div><div class="ph-t">Management Dashboard</div><div class="ph-s">Team overview · Sprint health · Deadlines</div></div></div>
+      <div class="mg-grid">
+        <div class="mg-card"><div class="mg-hdr"><span class="mg-t">Team Workload</span></div><div class="mg-body" id="mg-work"></div></div>
+        <div class="mg-card"><div class="mg-hdr"><span class="mg-t">Sprint Velocity</span><span style="font-size:10px;color:var(--g4)">7-day</span></div><div class="mg-body"><div class="vel-bars" id="vel-bars"></div><div class="vel-ls" id="vel-ls"></div></div></div>
+        <div class="mg-card"><div class="mg-hdr"><span class="mg-t">Upcoming Deadlines</span></div><div class="mg-body" id="mg-dl"></div></div>
+        <div class="mg-card"><div class="mg-hdr"><span class="mg-t">Sprint Summary</span></div><div class="mg-body" id="mg-sum"></div></div>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="view" id="view-notes">
+      <div class="phdr"><div><div class="ph-t">✨ AI-Powered Call Notes</div><div class="ph-s">Type your call notes — AI extracts and creates tasks automatically</div></div><div class="ph-r"><button class="pbtn sol" onclick="om('note')">+ Add Call Note</button></div></div>
+      <div class="nwrap" id="notes-list"></div>
+    </div>
+  </main>
+</div>
+
+<div class="overlay" id="ov" onclick="cmOut(event)">
+  <div class="modal" id="modal">
+    <div class="mhdr"><span class="mtitle" id="mtitle">Add Task</span><button class="mclose" onclick="cm()">✕</button></div>
+    <div class="mbody" id="mbody"></div>
+    <div class="mfoot" id="mfoot"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="sync-flash" id="sync-flash">✦ Updated by team</div>
+
+<script>
+/* ═══════════════ MEMBERS ════════════════ */
+const MB=[
+  {id:"jyoti", n:"Jyoti Jain",    r:"Founder",              av:"JJ",c:"#E8E8FF",f:"#4444AA"},
+  {id:"richa", n:"Richa Bedi",    r:"Head of Mates",        av:"RB",c:"#FFE8F0",f:"#AA2244"},
+  {id:"ritika",n:"Ritika",        r:"Head of Mentors",      av:"RT",c:"#E8F8F0",f:"#228855"},
+  {id:"vinod", n:"Vinod",         r:"Developer",            av:"VK",c:"#FFF4E8",f:"#AA6600"},
+  {id:"madhu", n:"Dr. Madhumati", r:"Lead Coordinator",     av:"DM",c:"#F0E8FF",f:"#6644AA"},
+  {id:"avni",  n:"Avni Jain",     r:"Assoc. Coordinator",   av:"AJ",c:"#E8F4FF",f:"#2266AA"},
+  {id:"barkha",n:"Barkha",        r:"Head of Advertising",  av:"BC",c:"#FFE8E8",f:"#AA2222"},
+  {id:"ismail",n:"Ismail",        r:"CA & Legal",           av:"IS",c:"#F8F8E8",f:"#777722"},
+];
+const gm=id=>MB.find(m=>m.id===id)||{n:"Unassigned",av:"?",c:"#EEE",f:"#999"};
+const td=()=>new Date().toISOString().split("T")[0];
+
+/* ═══════════════ STATE ══════════════════ */
+let S={tasks:[],notes:[],standups:{},sprint:"Sprint 1 — May Launch"};
+let fv="all", dragId=null, aiExt=[], aiCk={}, activeModal=null;
+let myUpdating=false; // prevent echo loop
+
+/* ═══════════════ SSE REAL-TIME ══════════ */
+const es=new EventSource('/events');
+es.addEventListener('state',e=>{
+  const data=JSON.parse(e.data);
+  S=data; renderAll();
+});
+es.addEventListener('update',e=>{
+  if(myUpdating){myUpdating=false;return}
+  const data=JSON.parse(e.data);
+  S=data; renderAll();
+  showSync();
+});
+es.onerror=()=>{
+  document.querySelector('.live-dot').style.background='#EF4444';
+  document.querySelector('.live-lbl').textContent='Reconnecting...';
+};
+es.onopen=()=>{
+  document.querySelector('.live-dot').style.background='#22C55E';
+  document.querySelector('.live-lbl').textContent='Live';
+};
+
+function showSync(){
+  const el=document.getElementById('sync-flash');
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),1800);
+}
+
+/* ═══════════════ API CALLS ══════════════ */
+async function api(method,path,body){
+  myUpdating=true;
+  const r=await fetch(path,{method,headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+  return r.json();
+}
+
+/* ═══════════════ RENDER ALL ═════════════ */
+function renderAll(){
+  renderBoard(); updSidebar();
+  const cur=document.querySelector('.view.on');
+  if(cur?.id==='view-standup')renderStandup();
+  if(cur?.id==='view-mgmt')renderMgmt();
+  if(cur?.id==='view-notes')renderNotes();
+}
+
+/* ═══════════════ BOARD ══════════════════ */
+function renderBoard(){
+  const cols={todo:[],inprogress:[],done:[],blocked:[]};
+  S.tasks.forEach(t=>{if(fv==="all"||t.a===fv)if(cols[t.s])cols[t.s].push(t)});
+  const M={todo:["b-todo","n-todo"],inprogress:["b-prog","n-prog"],done:["b-done","n-done"],blocked:["b-block","n-block"]};
+  Object.entries(cols).forEach(([s,tasks])=>{
+    const[bid,nid]=M[s];
+    document.getElementById(bid).innerHTML=tasks.length?tasks.map(tc).join(""):`<div class="drop-hint">Drop here</div>`;
+    document.getElementById(nid).textContent=tasks.length;
+  });
+  const all=S.tasks.filter(t=>fv==="all"||t.a===fv);
+  const tot=all.length,pr=all.filter(t=>t.s==="inprogress").length;
+  const dn=all.filter(t=>t.s==="done").length,bl=all.filter(t=>t.s==="blocked").length;
+  document.getElementById("st-tot").textContent=tot;
+  document.getElementById("st-pr").textContent=pr;
+  document.getElementById("st-dn").textContent=dn;
+  document.getElementById("st-bl").textContent=bl;
+  const p=n=>tot?`${Math.round(n/tot*100)}%`:"0%";
+  document.getElementById("bf-pr").style.width=p(pr);
+  document.getElementById("bf-dn").style.width=p(dn);
+  document.getElementById("bf-bl").style.width=p(bl);
+  document.getElementById("sb-done").textContent=dn;
+  document.getElementById("sb-total").textContent=tot;
+  document.getElementById("sb-pf").style.width=p(dn);
+  document.getElementById("sb-cnt").textContent=tot;
+  document.getElementById("sb-sn").textContent=S.sprint;
+  document.getElementById("board-sub").textContent=S.sprint;
+}
+
+function tc(t){
+  const m=gm(t.a);const od=t.due&&t.due<td()&&t.s!=="done";
+  return `<div class="tc" draggable="true" ondragstart="ds(event,'${t.id}')" ondblclick="openEdit('${t.id}')">
+    <div class="tc-top"><span class="tc-id">${t.id}</span><div class="tc-flags">${t.ai?`<span class="tc-ai">✨ AI</span>`:""}<span class="tc-pri p${t.p==="high"?"h":t.p==="med"?"m":"l"}">${t.p.toUpperCase()}</span></div></div>
+    <div class="tc-title">${t.t}</div>${t.d?`<div class="tc-desc">${t.d}</div>`:""}
+    <div class="tc-foot">
+      <div class="tc-tags">${(t.tags||[]).map(tg=>`<span class="tc-tag">${tg}</span>`).join("")}</div>
+      <div class="tc-meta">${t.due?`<span class="tc-due${od?" od":""}">${t.due}</span>`:""}
+        <div class="tc-av" style="background:${m.c};color:${m.f}" title="${m.n}">${m.av}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function updSidebar(){
+  document.getElementById("sb-team").innerHTML=`<span class="sbt">Team</span>`+
+    MB.map(m=>{
+      const cnt=S.tasks.filter(t=>t.a===m.id&&t.s!=="done").length;
+      return `<button class="mc${fv===m.id?" on":""}" onclick="filt('${m.id}',this)">
+        <div class="mc-av" style="background:${m.c};color:${m.f}">${m.av}</div>
+        <span class="mc-n">${m.n.split(" ")[0]}</span>
+        <span class="mc-c">${cnt}</span>
+      </button>`;
+    }).join("");
+}
+
+/* ═══════════════ DRAG & DROP ════════════ */
+function ds(e,id){dragId=id}
+function dov(e){e.preventDefault()}
+function dop(e,s){
+  e.preventDefault();
+  if(dragId){api('PUT',`/api/tasks/${dragId}`,{s});dragId=null;toast(`Moved to ${s}`)}
+}
+
+/* ═══════════════ FILTER ═════════════════ */
+function filt(id,el){
+  fv=id;
+  document.querySelectorAll(".mc,.si").forEach(b=>b.classList.remove("on"));
+  if(el)el.classList.add("on");
+  renderBoard();
+}
+
+/* ═══════════════ VIEW SWITCH ════════════ */
+function sv(name,btn){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
+  document.querySelectorAll(".nt,.si").forEach(b=>b.classList.remove("on"));
+  document.getElementById("view-"+name).classList.add("on");
+  if(btn)btn.classList.add("on");
+  if(name==="standup")renderStandup();
+  if(name==="mgmt")renderMgmt();
+  if(name==="notes")renderNotes();
+}
+
+/* ═══════════════ STANDUP ════════════════ */
+function renderStandup(){
+  document.getElementById("today-lbl").textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  document.getElementById("su-grid").innerHTML=MB.map(m=>{
+    const my=S.tasks.filter(t=>t.a===m.id);
+    const ip=my.filter(t=>t.s==="inprogress"),dn=my.filter(t=>t.s==="done"),bl=my.filter(t=>t.s==="blocked");
+    const su=S.standups[m.id]||{};
+    const stC=bl.length?"sta":ip.length?"stg":"stn";
+    const stL=bl.length?"Blocked":ip.length?"Active":"On Track";
+    return `<div class="su-card">
+      <div class="su-hdr">
+        <div class="su-av" style="background:${m.c};color:${m.f}">${m.av}</div>
+        <div><div class="su-nm">${m.n}</div><div class="su-rl">${m.r}</div></div>
+        <span class="su-st ${stC}">${stL}</span>
+      </div>
+      <div class="su-body">
+        <div class="sub-lbl">Active (${ip.length})</div>
+        ${ip.length?ip.map(t=>`<div class="sub-row">
+          <div class="sub-chk${su[t.id]?" d":""}" onclick="tChk('${m.id}','${t.id}',this)">${su[t.id]?"✓":""}</div>${t.t}
+        </div>`).join(""):`<div style="font-size:11px;color:var(--g4);padding:2px 0">No active tasks</div>`}
+        ${dn.length?`<div class="sub-lbl" style="margin-top:7px">Done (${dn.length})</div>${dn.map(t=>`<div class="sub-row"><div class="sub-chk d">✓</div><span style="text-decoration:line-through;color:var(--g4)">${t.t}</span></div>`).join("")}`:""}
+        ${bl.length?`<div class="su-bl"><div class="su-bl-t">🚫 Blocked</div>${bl.map(t=>`<div class="su-bl-b">${t.t}</div>`).join("")}</div>`:""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function tChk(mid,tid,el){
+  const su={...(S.standups[mid]||{})};
+  su[tid]=su[tid]?null:"done";
+  el.className="sub-chk"+(su[tid]?" d":"");
+  el.textContent=su[tid]?"✓":"";
+  api('PUT',`/api/standups/${mid}`,su);
+}
+
+/* ═══════════════ MANAGEMENT ════════════ */
+function renderMgmt(){
+  document.getElementById("mg-work").innerHTML=MB.map(m=>{
+    const tot=S.tasks.filter(t=>t.a===m.id).length;
+    const dn=S.tasks.filter(t=>t.a===m.id&&t.s==="done").length;
+    const pct=tot?Math.round(dn/tot*100):0;
+    return `<div class="mr"><div class="mr-av" style="background:${m.c};color:${m.f}">${m.av}</div>
+      <div class="mr-info"><div class="mr-nm">${m.n}</div><div class="mr-rl">${m.r}</div></div>
+      <div class="mr-bw"><div class="mr-bwrap"><div class="mr-bfill" style="width:${pct}%"></div></div><div class="mr-bp">${pct}%</div></div>
+      <div class="mr-cnt">${tot}</div></div>`;
+  }).join("");
+  const days=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],vals=[2,3,1,4,3,2,3];
+  const mx=Math.max(...vals);
+  document.getElementById("vel-bars").innerHTML=vals.map(v=>`<div class="vel-b" style="height:${v/mx*50+3}px"></div>`).join("");
+  document.getElementById("vel-ls").innerHTML=days.map(d=>`<span class="vel-l">${d}</span>`).join("");
+  const up=S.tasks.filter(t=>t.s!=="done"&&t.due).sort((a,b)=>a.due.localeCompare(b.due)).slice(0,5);
+  document.getElementById("mg-dl").innerHTML=up.map(t=>{
+    const m=gm(t.a);const urg=t.due<=td();
+    return `<div class="dl-item"><div class="dl-dot" style="background:${urg?"#DC2626":"var(--g3)"}"></div>
+      <div class="dl-inf"><div class="dl-t">${t.t}</div><div class="dl-a">${m.n}</div></div>
+      <div class="dl-d${urg?" urg":""}">${t.due}</div></div>`;
+  }).join("")||`<div style="font-size:12px;color:var(--g4)">No upcoming deadlines</div>`;
+  const tot=S.tasks.length,dn=S.tasks.filter(t=>t.s==="done").length,ip=S.tasks.filter(t=>t.s==="inprogress").length,bl=S.tasks.filter(t=>t.s==="blocked").length;
+  document.getElementById("mg-sum").innerHTML=`<div style="margin-bottom:10px">
+    <div style="font-size:10px;color:var(--g4);margin-bottom:3px">Sprint Progress</div>
+    <div style="background:var(--g1);border-radius:4px;height:7px;margin-bottom:3px">
+      <div style="background:var(--bk);height:7px;border-radius:4px;width:${tot?dn/tot*100:0}%"></div>
+    </div>
+    <div style="font-size:11px;color:var(--g5)">${dn}/${tot} complete · ${Math.round(tot?dn/tot*100:0)}%</div>
+  </div>
+  ${[["To Do",S.tasks.filter(t=>t.s==="todo").length,"var(--g3)"],["In Progress",ip,"var(--prog)"],["Done",dn,"var(--done)"],["Blocked",bl,"var(--blk)"]].map(([l,v,col])=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--g15)">
+      <div style="display:flex;align-items:center;gap:5px"><div style="width:6px;height:6px;border-radius:50%;background:${col}"></div><span style="font-size:11px;color:var(--g6)">${l}</span></div>
+      <span style="font-size:13px;font-weight:700">${v}</span>
+    </div>`).join("")}`;
+}
+
+/* ═══════════════ NOTES ══════════════════ */
+function renderNotes(){
+  document.getElementById("notes-list").innerHTML=
+    S.notes.slice().reverse().map(n=>`
+      <div class="note-card${n.aiTasks?.length?" ai-note":""}">
+        <div class="nc-hdr">
+          <span class="nc-date">${n.date}</span>
+          <span class="nc-type">${n.type}</span>
+          ${n.aiTasks?.length?`<span class="nc-ai-badge">✨ ${n.aiTasks.length} tasks created</span>`:""}
+        </div>
+        <div class="nc-body">${n.body}</div>
+        ${n.aiTasks?.length?`<div class="nc-tasks">
+          <div class="nc-tasks-hdr">✨ Auto-created tasks</div>
+          ${n.aiTasks.map(t=>`<div class="nc-task-item"><div class="nc-td"></div>${t.id} · ${t.t} → ${gm(t.a).n}</div>`).join("")}
+        </div>`:""}
+      </div>`).join("")||`<div style="font-size:13px;color:var(--g4);padding:20px">No notes yet. Add your first AI-powered call note.</div>`;
+}
+
+/* ═══════════════ AI EXTRACT ═════════════ */
+async function extractTasks(){
+  const noteText=document.getElementById("f-nb").value.trim();
+  const callType=document.getElementById("f-nt").value;
+  if(!noteText){toast("Please enter call notes first");return}
+  const zone=document.getElementById("ai-result-zone");
+  zone.innerHTML=`<div class="ai-loading"><div class="ai-spin"></div>AI is reading your notes and extracting tasks...</div>`;
+  try{
+    const memberList=MB.map(m=>`${m.id} (${m.n}, ${m.r})`).join(", ");
+    const prompt=`You are a project management assistant for Mejoric, an Indian mental wellness platform.
+Analyse this ${callType} call note and extract all actionable tasks.
+
+CALL NOTE:
+"""
+${noteText}
+"""
+
+TEAM MEMBERS:
+${memberList}
+
+Rules:
+- Extract REAL action items only
+- Assign to the most relevant person by role
+- Ritika: professional mentors, IT mentors
+- Richa: Mates, emotional mentors, community
+- Vinod: all platform/technical/website work
+- Ismail: legal, CA, compliance, incorporation
+- Jyoti: investor, funding, strategic decisions, LinkedIn
+- Barkha: marketing, advertising, Instagram
+- Dr. Madhumati: alignment interviews, curriculum, psychology
+- Avni: workshops, associate coordination
+
+Respond ONLY with a JSON array, no markdown:
+[{"title":"task title max 10 words","assignee":"member_id","priority":"high|med|low","tags":["Tag"]}]
+
+Min 2, max 8 tasks.`;
+
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+    const data=await res.json();
+    const text=data.content[0].text.trim().replace(/```json|```/g,"").trim();
+    aiExt=JSON.parse(text);
+    aiCk={};
+    aiExt.forEach((_,i)=>aiCk[i]=true);
+
+    zone.innerHTML=`<div class="ai-results">
+      <div class="air-hdr"><span class="air-t">✨ Tasks extracted</span><span class="air-c">${aiExt.length} found</span><span style="font-size:11px;color:var(--g5);margin-left:auto">Uncheck to skip</span></div>
+      ${aiExt.map((t,i)=>{const m=gm(t.assignee);return `<div class="atp" id="atp-${i}">
+        <div class="atp-ck on" id="atc-${i}" onclick="tAI(${i},this)">✓</div>
+        <div><div class="atp-title">${t.title}</div>
+          <div class="atp-meta">
+            <div class="atp-av" style="background:${m.c};color:${m.f}">${m.av}</div>
+            <span class="atp-nm">${m.n}</span>
+            <span class="atp-p p${t.priority==="high"?"h":t.priority==="med"?"m":"l"}">${t.priority.toUpperCase()}</span>
+            ${(t.tags||[]).map(tg=>`<span class="atp-tag">${tg}</span>`).join("")}
+          </div>
+        </div>
+      </div>`}).join("")}
+    </div>`;
+
+    document.getElementById("save-note-btn").disabled=false;
+    document.getElementById("save-note-btn").style.opacity="1";
+    toast(`✨ ${aiExt.length} tasks extracted!`,"ai-t");
+  }catch(err){
+    zone.innerHTML=`<div style="padding:11px;font-size:12px;color:#DC2626;background:#FFF0F0;border-radius:8px;border:1px solid #FCA5A5">⚠️ Could not extract tasks. Check connection and try again.<br><small style="color:var(--g4)">${err.message}</small></div>`;
+    document.getElementById("save-note-btn").disabled=false;
+    document.getElementById("save-note-btn").style.opacity="1";
+  }
+}
+
+function tAI(i,el){
+  aiCk[i]=!aiCk[i];
+  el.className="atp-ck"+(aiCk[i]?" on":"");
+  el.textContent=aiCk[i]?"✓":"";
+  document.getElementById(`atp-${i}`).style.opacity=aiCk[i]?"1":"0.4";
+}
+
+/* ═══════════════ SAVE NOTE ══════════════ */
+async function saveNote(){
+  const body=document.getElementById("f-nb").value.trim();
+  if(!body){toast("Please enter note content");return}
+  const selected=aiExt.filter((_,i)=>aiCk[i]);
+  let createdTasks=[];
+  if(selected.length){
+    const bulk=selected.map(t=>({t:t.title,d:"Auto-created from call notes",s:"todo",p:t.priority,a:t.assignee,tags:t.tags||[],due:"",ai:true}));
+    createdTasks=await api('POST','/api/tasks/bulk',{tasks:bulk});
+  }
+  const note={date:document.getElementById("f-nd").value,type:document.getElementById("f-nt").value,body,aiTasks:createdTasks.map(t=>({id:t.id,t:t.t,a:t.a}))};
+  await api('POST','/api/notes',note);
+  if(createdTasks.length)toast(`✨ ${createdTasks.length} tasks created!`,"ai-t");
+  else toast("Note saved");
+  renderNotes();cm();
+}
+
+/* ═══════════════ MODAL ══════════════════ */
+function om(type){
+  activeModal=type;aiExt=[];aiCk={};
+  const memberOpts=MB.map(m=>`<option value="${m.id}">${m.n} (${m.r})</option>`).join("");
+  document.getElementById("mtitle").textContent={task:"Add Task",sprint:"New Sprint",note:"✨ Add Call Note — AI Task Extraction"}[type]||type;
+  document.getElementById("modal").className=type==="note"?"modal wide":"modal";
+
+  if(type==="task"){
+    document.getElementById("mbody").innerHTML=`
+      <label class="fl">Task Title</label><input class="fi" id="f-t" placeholder="What needs to be done?">
+      <label class="fl">Description</label><textarea class="fta" id="f-d" placeholder="More details..."></textarea>
+      <div class="frow2">
+        <div><label class="fl">Assign To</label><select class="fsel" id="f-a">${memberOpts}</select></div>
+        <div><label class="fl">Priority</label><select class="fsel" id="f-p"><option value="high">High</option><option value="med" selected>Medium</option><option value="low">Low</option></select></div>
+      </div>
+      <div class="frow2">
+        <div><label class="fl">Due Date</label><input type="date" class="fi" id="f-due"></div>
+        <div><label class="fl">Status</label><select class="fsel" id="f-s"><option value="todo">To Do</option><option value="inprogress">In Progress</option><option value="done">Done</option><option value="blocked">Blocked</option></select></div>
+      </div>
+      <label class="fl">Tags</label><input class="fi" id="f-tags" placeholder="Platform, Legal, Marketing...">`;
+    document.getElementById("mfoot").innerHTML=`<button class="fbtn can" onclick="cm()">Cancel</button><button class="fbtn sub" onclick="submitTask()">Create Task</button>`;
+  }
+  else if(type==="sprint"){
+    document.getElementById("mbody").innerHTML=`
+      <label class="fl">Sprint Name</label><input class="fi" id="f-sn" placeholder="e.g. Sprint 2 — June Growth">
+      <label class="fl">Sprint Goal</label><textarea class="fta" id="f-sg" placeholder="What is the main goal?"></textarea>`;
+    document.getElementById("mfoot").innerHTML=`<button class="fbtn can" onclick="cm()">Cancel</button><button class="fbtn sub" onclick="submitSprint()">Create Sprint</button>`;
+  }
+  else if(type==="note"){
+    document.getElementById("mbody").innerHTML=`
+      <div class="ai-zone">
+        <div class="ai-zh"><div><div class="ai-zt">✨ AI Task Extraction</div><div class="ai-zs">Paste call notes — AI identifies tasks and assigns them to the right person automatically</div></div></div>
+        <div class="frow2" style="margin-bottom:8px">
+          <div><label class="fl">Date</label><input type="date" class="fi" id="f-nd" value="${td()}" style="margin:0"></div>
+          <div><label class="fl">Call Type</label><select class="fsel" id="f-nt" style="margin:0"><option>Daily Scrum</option><option>Management Call</option><option>Investor Call</option><option>Team Sync</option><option>One-on-One</option></select></div>
+        </div>
+        <textarea class="ai-ta" id="f-nb" placeholder="Paste your full call notes here...&#10;&#10;Example:&#10;Jyoti: Submit pitch to Inflection Point this week.&#10;Vinod: Consent screen needs to be built before launch.&#10;Richa: Brief all 13 Marketing Mates on Quora strategy.&#10;Blocker: T&C needs Ismail review before go-live."></textarea>
+        <div class="ai-go">
+          <span class="ai-tip">AI reads your notes and extracts every action item</span>
+          <button class="fbtn ai-b" onclick="extractTasks()">✨ Extract Tasks</button>
+        </div>
+      </div>
+      <div id="ai-result-zone"></div>`;
+    document.getElementById("mfoot").innerHTML=`<button class="fbtn can" onclick="cm()">Cancel</button><button class="fbtn sub" id="save-note-btn" onclick="saveNote()" disabled style="opacity:.4">Save Note</button>`;
+  }
+  document.getElementById("ov").classList.add("open");
+}
+
+async function submitTask(){
+  const t=document.getElementById("f-t").value.trim();
+  if(!t){toast("Please enter a task title");return}
+  await api('POST','/api/tasks',{t,d:document.getElementById("f-d").value.trim(),s:document.getElementById("f-s").value,p:document.getElementById("f-p").value,a:document.getElementById("f-a").value,tags:(document.getElementById("f-tags").value||"").split(",").map(x=>x.trim()).filter(Boolean),due:document.getElementById("f-due").value,ai:false});
+  toast("Task created");cm();
+}
+
+async function submitSprint(){
+  const n=document.getElementById("f-sn").value.trim();
+  if(!n){toast("Enter sprint name");return}
+  await api('PUT','/api/sprint',{name:n});
+  toast(`Sprint "${n}" created`);cm();
+}
+
+function openEdit(id){
+  const t=S.tasks.find(t=>t.id===id);if(!t)return;
+  const memberOpts=MB.map(m=>`<option value="${m.id}"${m.id===t.a?" selected":""}>${m.n}</option>`).join("");
+  document.getElementById("mtitle").textContent=t.id+(t.ai?" ✨":"");
+  document.getElementById("modal").className="modal";
+  document.getElementById("mbody").innerHTML=`
+    <label class="fl">Title</label><input class="fi" id="e-t" value="${t.t}">
+    <label class="fl">Description</label><textarea class="fta" id="e-d">${t.d||""}</textarea>
+    <div class="frow2">
+      <div><label class="fl">Status</label><select class="fsel" id="e-s">${["todo","inprogress","done","blocked"].map(s=>`<option value="${s}"${s===t.s?" selected":""}>${s}</option>`).join("")}</select></div>
+      <div><label class="fl">Priority</label><select class="fsel" id="e-p">${["high","med","low"].map(p=>`<option value="${p}"${p===t.p?" selected":""}>${p}</option>`).join("")}</select></div>
+    </div>
+    <div class="frow2">
+      <div><label class="fl">Assign To</label><select class="fsel" id="e-a">${memberOpts}</select></div>
+      <div><label class="fl">Due Date</label><input type="date" class="fi" id="e-due" value="${t.due||""}"></div>
+    </div>
+    <button onclick="delTask('${id}')" style="font-size:11px;padding:5px 12px;border:1.5px solid #FCA5A5;border-radius:6px;background:none;color:#DC2626;cursor:pointer;font-family:'DM Sans',sans-serif">Delete Task</button>`;
+  document.getElementById("mfoot").innerHTML=`<button class="fbtn can" onclick="cm()">Cancel</button><button class="fbtn sub" onclick="updateTask('${id}')">Update</button>`;
+  document.getElementById("ov").classList.add("open");
+}
+
+async function updateTask(id){
+  await api('PUT',`/api/tasks/${id}`,{t:document.getElementById("e-t").value,d:document.getElementById("e-d").value,s:document.getElementById("e-s").value,p:document.getElementById("e-p").value,a:document.getElementById("e-a").value,due:document.getElementById("e-due").value});
+  toast("Task updated");cm();
+}
+
+async function delTask(id){
+  await api('DELETE',`/api/tasks/${id}`);
+  toast("Task deleted");cm();
+}
+
+function cm(){document.getElementById("ov").classList.remove("open");activeModal=null;aiExt=[];aiCk={}}
+function cmOut(e){if(e.target===document.getElementById("ov"))cm()}
+
+function toast(msg,cls){
+  const el=document.getElementById("toast");
+  el.textContent=msg;el.className="toast show"+(cls?" "+cls:"");
+  setTimeout(()=>el.className="toast",2400);
+}
+</script>
+</body>
+</html>
